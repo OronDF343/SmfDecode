@@ -1,6 +1,6 @@
 namespace SmfDecode.Constants
 {
-    public enum SmpteFpsValues : sbyte
+    public enum SmpteFpsValues : byte
     {
         Smpte24 = 0,
         Smpte25 = 1,

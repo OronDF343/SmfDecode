@@ -1,6 +1,6 @@
 namespace SmfDecode.Constants
 {
-    public enum ModeMessages : sbyte // *** special behavior for each of these! see spec ***
+    public enum ModeMessages : byte // *** special behavior for each of these! see spec ***
     {
         AllSoundOff = 120,
         ResetAllControllers = 121,

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using SmfDecode.Chunks;
 using SmfDecode.Events;
 using SmfDecode.Events.Meta;

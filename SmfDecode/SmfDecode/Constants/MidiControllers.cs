@@ -1,7 +1,7 @@
 namespace SmfDecode.Constants
 {
     // All not listed numbers are undefined except for 0x78-0x7F which are reserved for Channel Mode Messages
-    public enum MidiControllers : sbyte
+    public enum MidiControllers : byte
     {
         // MSB (0x00-0x1F)
         BankSelectMsb = 0x00,

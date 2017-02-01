@@ -1,6 +1,6 @@
 namespace SmfDecode.Constants
 {
-    public enum TextEventKinds : sbyte
+    public enum TextEventKinds : byte
     {
         Text = 0x01,
         CopyrightNotice = 0x02,

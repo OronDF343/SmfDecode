@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices.ComTypes;
-using System.Text;
-
-namespace SmfDecode
+﻿namespace SmfDecode
 {
     public static class MidiBytesConverter
     {
@@ -11,11 +6,6 @@ namespace SmfDecode
         {
             // TODO: verify arguments
             return (uint)((buffer[pos] << 24) | (buffer[pos+1] << 16) | (buffer[pos+2] << 8) | buffer[pos+3]);
-        }
-        public static int ReadBigEndianInt(byte[] buffer, int pos = 0)
-        {
-            // TODO: verify arguments
-            return (buffer[pos] << 24) | (buffer[pos + 1] << 16) | (buffer[pos + 2] << 8) | buffer[pos + 3];
         }
         public static int ReadBigEndian24bit(byte[] buffer, int pos = 0)
         {

@@ -1,7 +1,7 @@
 namespace SmfDecode.Constants
 {
     // MSB and LSB are sent separately, both 0-127
-    public enum RegisteredParameterNumbers : short
+    public enum RegisteredParameterNumbers : ushort
     {
         PitchBendSensitivity = 0x0000,
         FineTuning = 0x0001,
