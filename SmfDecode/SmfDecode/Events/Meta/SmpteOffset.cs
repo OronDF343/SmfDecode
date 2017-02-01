@@ -12,7 +12,7 @@ namespace SmfDecode.Events.Meta
             FractionalFrames = fractionalFrames;
         }
 
-        public override sbyte Type => 0x54;
+        public override byte Type => 0x54;
         public override int Length => 0x05;
 
         public byte SmpteFps { get; } // 0-3, see enum.

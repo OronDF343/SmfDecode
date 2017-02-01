@@ -10,7 +10,7 @@ namespace SmfDecode.Events.Meta
             Notated32ndsPerQuarter = notated32NdsPerQuarter;
         }
 
-        public override sbyte Type => 0x58;
+        public override byte Type => 0x58;
         public override int Length => 0x04;
         public byte Numerator { get; }
         public byte DenominatorExponent { get; }

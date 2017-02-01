@@ -2,7 +2,7 @@ namespace SmfDecode.Events
 {
     public class PolyphonicKeyPressure : MidiMessage
     {
-        public PolyphonicKeyPressure(byte channel, sbyte note, sbyte value)
+        public PolyphonicKeyPressure(byte channel, byte note, byte value)
             : base(channel)
         {
             Note = note;
@@ -10,7 +10,7 @@ namespace SmfDecode.Events
         }
 
         internal override byte StatusMask => 0xD0;
-        public sbyte Note { get; } // 0-127, Middle C = 60
-        public sbyte Value { get; } // 0-127
+        public byte Note { get; } // 0-127, Middle C = 60
+        public byte Value { get; } // 0-127
     }
 }

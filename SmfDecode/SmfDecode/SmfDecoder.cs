@@ -94,28 +94,28 @@ namespace SmfDecode
             switch (statusUpper)
             {
                 case 0x8:
-                    ev = new NoteOff(statusLower, (sbyte)firstByte, _source.ReadSByte());
+                    ev = new NoteOff(statusLower, firstByte, _source.ReadByte());
                     break;
                 case 0x9:
-                    ev = new NoteOn(statusLower, (sbyte)firstByte, _source.ReadSByte());
+                    ev = new NoteOn(statusLower, firstByte, _source.ReadByte());
                     break;
                 case 0xA:
-                    ev = new PolyphonicKeyPressure(statusLower, (sbyte)firstByte, _source.ReadSByte());
+                    ev = new PolyphonicKeyPressure(statusLower, firstByte, _source.ReadByte());
                     break;
                 case 0xB:
                     if (firstByte < 120)
-                        ev = new ControlChange(statusLower, (sbyte)firstByte, _source.ReadSByte());
+                        ev = new ControlChange(statusLower, firstByte, _source.ReadByte());
                     else
-                        ev = new ChannelMode(statusLower, (sbyte)firstByte, _source.ReadSByte());
+                        ev = new ChannelMode(statusLower, firstByte, _source.ReadByte());
                     break;
                 case 0xC:
-                    ev = new ProgramChange(statusLower, (sbyte)firstByte);
+                    ev = new ProgramChange(statusLower, firstByte);
                     break;
                 case 0xD:
-                    ev = new ChannelPressure(statusLower, (sbyte)firstByte);
+                    ev = new ChannelPressure(statusLower, firstByte);
                     break;
                 case 0xE:
-                    ev = new PitchBend(statusLower, (sbyte)firstByte, _source.ReadSByte());
+                    ev = new PitchBend(statusLower, firstByte, _source.ReadByte());
                     break;
                 case 0xF:
                     switch (statusLower)
@@ -147,7 +147,7 @@ namespace SmfDecode
                                     ev = new TextEvent(Encoding.UTF8.GetString(data)); // TODO: Let user choose encoding
                                     break;
                                 case 0x20:
-                                    ev = new ChannelPrefix((sbyte)data[0]);
+                                    ev = new ChannelPrefix(data[0]);
                                     break;
                                 case 0x2F:
                                     ev = new EndOfTrack();
@@ -168,14 +168,14 @@ namespace SmfDecode
                                     ev = new SequencerSpecificMetaEvent(data);
                                     break;
                                 default:
-                                    // TODO: Unrecognized metadata kind, not sure what to do
+                                    // TODO: Unrecognized metadata kind, non-fatal error
                                     break;
                             }
                             break;
                     }
                     break;
             }
-            // At this point, if the event was not recognized: VERY BAD ERROR!
+            // At this point, if the event was not recognized: FATAL ERROR!
             if (ev == null) throw new NotImplementedException();
             return new TrackEvent(deltaTime, ev);
         }

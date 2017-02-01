@@ -2,7 +2,7 @@ namespace SmfDecode.Events
 {
     public class ControlChange : MidiMessage
     {
-        public ControlChange(byte channel, sbyte controller, sbyte data)
+        public ControlChange(byte channel, byte controller, byte data)
             : base(channel)
         {
             Controller = controller;
@@ -20,7 +20,7 @@ namespace SmfDecode.Events
         // Global controllers can be used on a reciever in Mode 4 (Omni off / Mono) to affect all channels with higher numbers (use 16 for "1 and higher"). Not always supported!
         // Controllers 16-19 (+ the corresponding LSB ones: 48-51) and 80-83 are general-purpose (not assigned to any manufacturer)
         // Controllers 64-69 are switches. OFF = 0-63, ON = 64-127
-        public virtual sbyte Controller { get; } // 0-119
-        public virtual sbyte Data { get; } // 0-127
+        public virtual byte Controller { get; } // 0-119
+        public virtual byte Data { get; } // 0-127
     }
 }

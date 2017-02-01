@@ -8,7 +8,7 @@ namespace SmfDecode.Events.Meta
             IsMinorKey = isMinorKey;
         }
 
-        public override sbyte Type => 0x59;
+        public override byte Type => 0x59;
         public override int Length => 0x02;
         public sbyte Signature { get; } // Positive values are sharps, negative values are flats. -7 to 7.
         public bool IsMinorKey { get; } // true=1, false=0

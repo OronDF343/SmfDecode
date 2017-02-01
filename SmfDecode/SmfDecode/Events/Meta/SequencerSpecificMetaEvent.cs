@@ -7,7 +7,7 @@ namespace SmfDecode.Events.Meta
             Data = data;
         }
 
-        public override sbyte Type => 0x7F;
+        public override byte Type => 0x7F;
         public override int Length => Data.Length;
         public byte[] Data { get; }
     }
