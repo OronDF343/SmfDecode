@@ -10,27 +10,46 @@ namespace SmfDecode
 {
     public class SmfDecoder : IDisposable
     {
-        public SmfDecoder(string path, bool useAsync = true, int bufferSize = 4096)
+        public SmfDecoder(string path, ILogger logger = null, bool useAsync = true, int bufferSize = 4096)
         {
             _source = new BinaryReader(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize,
                                                       (useAsync ? FileOptions.Asynchronous : 0)
                                                       | FileOptions.SequentialScan),
                                        Encoding.ASCII, false);
+            _logger = logger;
         }
 
-        public SmfDecoder(Stream file, bool leaveOpen = false)
+        public SmfDecoder(Stream file, ILogger logger = null, bool leaveOpen = false)
         {
             _source = new BinaryReader(file, Encoding.ASCII, leaveOpen);
+            _logger = logger;
         }
 
-        public SmfDecoder(byte[] data)
-            : this(new MemoryStream(data)) { }
+        public SmfDecoder(byte[] data, ILogger logger = null)
+            : this(new MemoryStream(data), logger) { }
         
         private readonly BinaryReader _source;
-        private byte _lastStatusByte = 0;
+        private byte _lastStatusByte;
+        private readonly ILogger _logger;
+        private int _ntrks = -1;
 
         public Chunk ReadChunk()
         {
+            var isEof = _source.BaseStream.Position >= _source.BaseStream.Length - 1;
+            
+            if (_ntrks == 0)
+            {
+                if (isEof) _logger?.Info(Strings.FinishedAtEnd, _source.BaseStream.Position);
+                else _logger?.Warn(Strings.FinishedBeforeEnd, _source.BaseStream.Position);
+                return null;
+            }
+            if (isEof)
+            {
+                var msg = string.Format(Strings.UnexpectedEofTracks, _ntrks);
+                _logger?.Fatal(msg, _source.BaseStream.Position);
+                throw new SmfDecoderException(msg, _source.BaseStream.Position);
+            }
+
             // Read the type and length
             var id = Encoding.ASCII.GetString(_source.ReadBytes(4));
             var len = MidiBytesConverter.ReadBigEndianUInt(_source.ReadBytes(4));
@@ -39,20 +58,27 @@ namespace SmfDecode
             switch (id)
             {
                 case MidiHeader.HeaderIdentifier:
+                    if (_ntrks > -1) _logger?.Error(Strings.DuplicateHeader, _source.BaseStream.Position - 8);
                     var next = _source.BaseStream.Position + len;
                     // Read the values
                     var format = MidiBytesConverter.ReadBigEndianUShort(_source.ReadBytes(2));
-                    var ntrks = MidiBytesConverter.ReadBigEndianUShort(_source.ReadBytes(2));
+                    _ntrks = MidiBytesConverter.ReadBigEndianUShort(_source.ReadBytes(2));
                     var div = MidiBytesConverter.ReadBigEndianShort(_source.ReadBytes(2));
                     // Jump to next chunk if case the header is longer than 6 for some reason
-                    if (_source.BaseStream.Position < next) _source.BaseStream.Position = next;
+                    if (_source.BaseStream.Position < next)
+                    {
+                        _logger?.Warn(Strings.WrongLength, _source.BaseStream.Position - 10);
+                        _source.BaseStream.Position = next;
+                    }
                     // Create the header chunk object, taking in to account the time division method used
-                    return div < 0 ? new MidiHeader(format, ntrks, (sbyte)(div >> 8), (byte)(div & 0xFF)) : new MidiHeader(format, ntrks, div);
+                    return div < 0 ? new MidiHeader(format, (ushort)_ntrks, (sbyte)(div >> 8), (byte)(div & 0xFF)) : new MidiHeader(format, (ushort)_ntrks, div);
                 case MidiTrack.TrackIdentifier:
+                    if (_ntrks == -1) _logger?.Warn(Strings.NoHeader, _source.BaseStream.Position - 8);
                     // Read all the events in the track and return the track
                     return new MidiTrack(ReadTrackEvents(len));
                 default:
-                    throw new NotImplementedException();
+                    _logger?.Error(Strings.UnknownChunk, _source.BaseStream.Position - 8);
+                    return new UnknownChunk(id, _source.ReadBytes((int)len));
             }
         }
 
@@ -171,11 +197,16 @@ namespace SmfDecode
                                     break;
                             }
                             break;
+                        default:
+                            // At this point, if the event was not recognized: FATAL ERROR!
+                            throw new NotImplementedException();
                     }
                     break;
+                default:
+                    // At this point, if the event was not recognized: FATAL ERROR!
+                    throw new NotImplementedException();
             }
-            // At this point, if the event was not recognized: FATAL ERROR!
-            if (ev == null) throw new NotImplementedException();
+            
             return new TrackEvent(deltaTime, ev);
         }
 
@@ -199,7 +230,12 @@ namespace SmfDecode
 
     public class SmfDecoderException : Exception
     {
-        public SmfDecoderException(string msg)
-            : base(msg) { }
+        public long Position { get; }
+
+        public SmfDecoderException(string msg, long position)
+            : base(msg)
+        {
+            Position = position;
+        }
     }
 }

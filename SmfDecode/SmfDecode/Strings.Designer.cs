@@ -60,5 +60,68 @@ namespace SmfDecode {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Duplicate header found! Attempting to continue using the new header..
+        /// </summary>
+        internal static string DuplicateHeader {
+            get {
+                return ResourceManager.GetString("DuplicateHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Last track has been decoded successfully..
+        /// </summary>
+        internal static string FinishedAtEnd {
+            get {
+                return ResourceManager.GetString("FinishedAtEnd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Last track has been decoded, but there is extra data after it..
+        /// </summary>
+        internal static string FinishedBeforeEnd {
+            get {
+                return ResourceManager.GetString("FinishedBeforeEnd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Found track chunk, but no valid header has been read yet!.
+        /// </summary>
+        internal static string NoHeader {
+            get {
+                return ResourceManager.GetString("NoHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unexpected end of file, still need to read {0} tracks!.
+        /// </summary>
+        internal static string UnexpectedEofTracks {
+            get {
+                return ResourceManager.GetString("UnexpectedEofTracks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid or unknown chunk format!.
+        /// </summary>
+        internal static string UnknownChunk {
+            get {
+                return ResourceManager.GetString("UnknownChunk", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Data is of the wrong length - the file may be corrupt!.
+        /// </summary>
+        internal static string WrongLength {
+            get {
+                return ResourceManager.GetString("WrongLength", resourceCulture);
+            }
+        }
     }
 }

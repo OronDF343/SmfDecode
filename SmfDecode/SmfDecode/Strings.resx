@@ -117,4 +117,25 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="DuplicateHeader" xml:space="preserve">
+    <value>Duplicate header found! Attempting to continue using the new header.</value>
+  </data>
+  <data name="FinishedAtEnd" xml:space="preserve">
+    <value>Last track has been decoded successfully.</value>
+  </data>
+  <data name="FinishedBeforeEnd" xml:space="preserve">
+    <value>Last track has been decoded, but there is extra data after it.</value>
+  </data>
+  <data name="NoHeader" xml:space="preserve">
+    <value>Found track chunk, but no valid header has been read yet!</value>
+  </data>
+  <data name="UnexpectedEofTracks" xml:space="preserve">
+    <value>Unexpected end of file, still need to read {0} tracks!</value>
+  </data>
+  <data name="UnknownChunk" xml:space="preserve">
+    <value>Invalid or unknown chunk format!</value>
+  </data>
+  <data name="WrongLength" xml:space="preserve">
+    <value>Data is of the wrong length - the file may be corrupt!</value>
+  </data>
 </root>
