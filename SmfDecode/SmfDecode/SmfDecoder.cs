@@ -2,14 +2,30 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using JetBrains.Annotations;
 using SmfDecode.Chunks;
 using SmfDecode.Events;
 using SmfDecode.Events.Meta;
 
 namespace SmfDecode
 {
+    /// <summary>
+    /// Decoder for SMF (Standard MIDI Files).
+    /// </summary>
     public class SmfDecoder : IDisposable
     {
+        /// <summary>
+        /// Create a new decoder based on a path.
+        /// </summary>
+        /// <param name="path">The path of the file to be decoded.</param>
+        /// <param name="logger">(optional) A logging wrapper. Provide an implementation of <see cref="ILogger"/> to enable logging.</param>
+        /// <param name="useAsync">Specify whether to use asynchronous I/O operations at OS level. Default is <see langword="true"/>.</param>
+        /// <param name="bufferSize">The size of the main file buffer. Default is 4096.</param>
+        /// <exception cref="FileNotFoundException">The file does not exist.</exception>
+        /// <exception cref="IOException">An I/O error occurred.</exception>
+        /// <exception cref="System.Security.SecurityException">The caller does not have the required permission.</exception>
+        /// <exception cref="DirectoryNotFoundException">The specified path is invalid.</exception>
+        /// <exception cref="UnauthorizedAccessException">The OS does not permit access to the file -or- the file is encrypted but encryption is not supported on the current platform.</exception>
         public SmfDecoder(string path, ILogger logger = null, bool useAsync = true, int bufferSize = 4096)
         {
             _source = new BinaryReader(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.Read, bufferSize,
@@ -19,20 +35,38 @@ namespace SmfDecode
             _logger = logger;
         }
 
+        /// <summary>
+        /// Create a new decoder based on an input <see cref="Stream"/>.
+        /// </summary>
+        /// <param name="file">A <see cref="Stream"/> which provides the input data.</param>
+        /// <param name="logger">(optional) A logging wrapper. Provide an implementation of <see cref="ILogger"/> to enable logging.</param>
+        /// <param name="leaveOpen">Specify whether the <see cref="Stream"/> should be left open when this decoder is disposed. Default is <see langword="false"/>.</param>
         public SmfDecoder(Stream file, ILogger logger = null, bool leaveOpen = false)
         {
             _source = new BinaryReader(file, Encoding.ASCII, leaveOpen);
             _logger = logger;
         }
 
+        /// <summary>
+        /// Create a new decoder based on input data from an array.
+        /// </summary>
+        /// <param name="data">An array containing the bytes of the input data.</param>
+        /// <param name="logger">(optional) A logging wrapper. Provide an implementation of <see cref="ILogger"/> to enable logging.</param>
         public SmfDecoder(byte[] data, ILogger logger = null)
             : this(new MemoryStream(data), logger) { }
         
+        [NotNull]
         private readonly BinaryReader _source;
         private byte _lastStatusByte;
         private readonly ILogger _logger;
         private int _ntrks = -1;
 
+        /// <summary>
+        /// Reads a single <see cref="Chunk"/> from the file.
+        /// </summary>
+        /// <returns>The parsed <see cref="Chunk"/> -or- <see langword="null"/> if the end of the file has been reached.</returns>
+        /// <exception cref="IOException">An I/O error occurred.</exception>
+        /// <exception cref="SmfDecoderException">The file is corrupt and/or cannot be decoded due to a fatal error.</exception>
         public Chunk ReadChunk()
         {
             var isEof = _source.BaseStream.Position >= _source.BaseStream.Length - 1;
@@ -50,7 +84,7 @@ namespace SmfDecode
                 throw new SmfDecoderException(msg, _source.BaseStream.Position);
             }
 
-            // Read the type and length
+            // Read id and length
             var id = Encoding.ASCII.GetString(_source.ReadBytes(4));
             var len = MidiBytesConverter.ReadBigEndianUInt(_source.ReadBytes(4));
 
@@ -178,7 +212,7 @@ namespace SmfDecode
                                     ev = new EndOfTrack();
                                     break;
                                 case 0x51:
-                                    ev = new SetTempo(MidiBytesConverter.ReadBigEndian24bit(data));
+                                    ev = new SetTempo(MidiBytesConverter.ReadBigEndian24Bit(data));
                                     break;
                                 case 0x54:
                                     ev = new SmpteOffset((byte)((data[0] >> 5) & 0x3), (byte)(data[0] & 0x1F), data[1], data[2], data[3], data[4]);
@@ -222,16 +256,28 @@ namespace SmfDecode
             return r;
         }
 
+        /// <inheritdoc />
         public void Dispose()
         {
-            _source?.Dispose();
+            _source.Dispose();
         }
     }
 
+    /// <summary>
+    /// Describes a fatal error that has occurred during decoding SMF.
+    /// </summary>
     public class SmfDecoderException : Exception
     {
+        /// <summary>
+        /// The position in the file at which the error has occurred.
+        /// </summary>
         public long Position { get; }
 
+        /// <summary>
+        /// Create a new instance of <see cref="SmfDecoderException"/>.
+        /// </summary>
+        /// <param name="msg">A message which describes the error.</param>
+        /// <param name="position">The position in the file at which the error has occurred.</param>
         public SmfDecoderException(string msg, long position)
             : base(msg)
         {
